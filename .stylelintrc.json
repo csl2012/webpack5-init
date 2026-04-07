@@ -1,0 +1,17 @@
+{
+    "extends": [
+        "stylelint-config-standard",
+        "stylelint-config-standard-scss"
+    ],
+    "rules": {
+        "scss/no-global-function-names": null,
+        "color-no-invalid-hex": true,
+        "font-family-no-duplicate-names": true,
+        "property-no-unknown": true,
+        "selector-pseudo-class-no-unknown": true,
+        "unit-no-unknown": true,
+        "scss/at-extend-no-missing-placeholder": true,
+        "scss/at-rule-no-unknown": true,
+        "scss/selector-no-redundant-nesting-selector": true
+    }
+}

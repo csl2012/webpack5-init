@@ -1,0 +1,11 @@
+const { merge } = require('webpack-merge');
+const baseConfig = require('./webpack.config.js');
+
+module.exports = merge(baseConfig, {
+  mode: 'production',
+  devtool: 'source-map',
+  stats: 'errors-only', // 只显示错误信息
+  optimization: {
+    minimize: true,
+  },
+});
