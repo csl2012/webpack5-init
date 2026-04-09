@@ -1,10 +1,16 @@
+// webpack.config.js
 const path = require('path');
-const webpack = require('webpack');
+// const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const WebpackBar = require('webpackbar');
+
+// 直接检查 process.env.NODE_ENV
 const isProduction = process.env.NODE_ENV === 'production';
+console.log('process.env.NODE_ENV:', process.env.NODE_ENV);
+console.log('isProduction:', isProduction);
 
 const pages = [
   {
@@ -21,8 +27,7 @@ const entry = {};
 pages.forEach((page) => {
   entry[page.name] = `./src/${page.name}/index.js`;
 });
-
-const plugins = [];
+const plugins = [new WebpackBar()];
 pages.forEach((page) => {
   plugins.push(
     // 单页面配置
@@ -67,24 +72,6 @@ plugins.push(
   }),
 );
 
-// 进度条
-plugins.push(
-  new webpack.ProgressPlugin({
-    activeModules: false,
-    entries: true,
-    handler: (percentage, message, ...args) => {
-      const percent = Math.round(percentage * 100);
-      process.stdout.write(`\r${percent}% ${message}`);
-    },
-    modules: true,
-    modulesCount: 5000,
-    profile: false,
-    dependencies: true,
-    dependenciesCount: 10000,
-  }),
-);
-
-// 复制静态文件
 plugins.push(
   new CopyWebpackPlugin({
     patterns: [
@@ -99,7 +86,6 @@ plugins.push(
   }),
 );
 
-// Gzip压缩
 if (isProduction) {
   plugins.push(
     new CompressionPlugin({
@@ -110,8 +96,8 @@ if (isProduction) {
     }),
   );
 }
-
 module.exports = {
+  mode: isProduction ? 'production' : 'development',
   entry,
   output: {
     path: path.resolve(__dirname, 'dist'),

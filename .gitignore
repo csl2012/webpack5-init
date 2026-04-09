@@ -54,6 +54,7 @@ jspm_packages/
 
 # Optional eslint cache
 .eslintcache
+.webpack-cache/
 
 # Optional stylelint cache
 .stylelintcache
