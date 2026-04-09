@@ -1,7 +1,12 @@
-const { merge } = require('webpack-merge');
-const baseConfig = require('./webpack.config.js');
+const path = require('path');
+const webpack = require('webpack');
+const getCommonConfig = require('./webpack.config.base.js');
 
-module.exports = merge(baseConfig, {
+const common = getCommonConfig(false);
+
+module.exports = {
+  ...common,
+  mode: 'development',
   devtool: 'eval-cheap-module-source-map',
   watchOptions: {
     aggregateTimeout: 300,
@@ -9,17 +14,22 @@ module.exports = merge(baseConfig, {
     ignored: /node_modules/,
   },
   output: {
-    filename: 'js/[name].[fullhash].js',
-    chunkFilename: 'js/[id].[fullhash].js',
+    ...common.output,
+    filename: 'js/[name].js',
+    chunkFilename: 'js/[id].js',
   },
+  plugins: [
+    ...common.plugins,
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('development'),
+    }),
+  ],
   devServer: {
-    static: {
-      directory: './dist',
-    },
-    port: 3000,
-    open: true,
-    hot: true,
+    static: path.resolve(__dirname, 'dist'),
     compress: true,
+    hot: true,
+    open: true,
+    port: 8080,
     historyApiFallback: true,
     proxy: [
       {
@@ -33,9 +43,6 @@ module.exports = merge(baseConfig, {
       },
     ],
   },
-  module: {
-    rules: [],
-  },
   optimization: {
     minimize: false,
     splitChunks: false,
@@ -44,5 +51,4 @@ module.exports = merge(baseConfig, {
     chunkIds: 'named',
   },
   stats: 'errors-warnings',
-  // stats: 'minimal',
-});
+};
