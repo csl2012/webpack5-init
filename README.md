@@ -28,24 +28,24 @@ A comprehensive Webpack 5 project with multi-page and single-page configuration,
 
 1. **Clone the repository**
 
-   ```bash
-   git clone <repository-url>
-   cd webpack5
-   ```
+```bash
+git clone <repository-url>
+cd webpack5
+```
 
-2. **Install dependencies**
+1. **Install dependencies**
 
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-3. **Install Husky hooks** (automatically run via prepare script)
+1. **Install Husky hooks** (automatically run via prepare script)
 
-   ```bash
-   # This is automatically executed after npm install
-   # If not, run manually:
-   npm run prepare
-   ```
+```bash
+# This is automatically executed after npm install
+# If not, run manually:
+npm run prepare
+```
 
 ## Usage
 
@@ -144,14 +144,14 @@ The project uses Webpack's DLL Plugin to pre-bundle third-party dependencies, si
 
 1. **Build DLL files**:
 
-   ```bash
-   npm run build:dll
-   ```
+```bash
+npm run build:dll
+```
 
-2. **Automatic inclusion**:
+1. **Automatic inclusion**:
    The DLL files are automatically included in the HTML via `AddAssetHtmlPlugin`
 
-3. **When to rebuild**:
+2. **When to rebuild**:
    - When adding new dependencies
    - When updating dependency versions
    - When project structure changes significantly

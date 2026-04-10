@@ -1,55 +1,57 @@
 {
   "name": "webpack5-project",
   "version": "1.0.0",
-  "description": "Webpack 5 project with multi-page and single-page configuration",
+  "description": "Webpack5 企业级多页面/单页面脚手架",
   "main": "index.js",
+  "sideEffects": [
+    "*.css",
+    "*.scss",
+    "*.sass",
+    "*.less",
+    "*.vue"
+  ],
   "scripts": {
     "build:dll": "webpack --config webpack.config.dll.js",
     "build:dev": "npm run build:dll && cross-env NODE_ENV=production webpack --config webpack.config.dev.js",
     "build:prod": "npm run build:dll && cross-env NODE_ENV=production webpack --config webpack.config.prod.js",
     "start": "cross-env NODE_ENV=development webpack serve --config webpack.config.dev.js",
     "start:prod": "npm run build:dll && cross-env NODE_ENV=production webpack serve --config webpack.config.prod.js",
-    "lint": "eslint src --ext .js,.ts",
-    "lint:css": "stylelint 'src/**/*.{css,scss}'",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/*.{js,vue}",
+    "lint:css": "stylelint src/**/*.{css,scss,vue}",
     "prepare": "husky",
     "audit": "npm audit fix",
     "analyze": "webpack --config webpack.config.prod.js --profile --json > dist/stats.json && webpack-bundle-analyzer dist/stats.json"
   },
   "lint-staged": {
-    "*.js": [
+    "*.{js,vue}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{css,scss,less,sass}": [
+    "*.{css,scss,sass,vue}": [
       "stylelint --fix",
       "prettier --write"
     ]
   },
-  "keywords": [
-    "webpack",
-    "webpack5",
-    "multi-page",
-    "single-page",
-    "babel",
-    "es6"
-  ],
   "author": "",
-  "license": "MIT",
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
   },
+  "dependencies": {
+    "core-js": "^3.49.0",
+    "vue": "^3.5.32"
+  },
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/plugin-transform-runtime": "^7.26.10",
-    "@babel/preset-env": "^7.26.10",
-    "@babel/runtime-corejs3": "^7.26.10",
+    "@babel/preset-env": "^7.29.2",
+    "@babel/runtime-corejs3": "^7.29.2",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.0",
+    "@vue/compiler-sfc": "^3.5.32",
     "add-asset-html-webpack-plugin": "^6.0.0",
     "autoprefixer": "^10.4.19",
-    "babel-loader": "^9.2.1",
+    "babel-loader": "^10.1.1",
     "clean-webpack-plugin": "^4.0.0",
     "compression-webpack-plugin": "^12.0.0",
     "copy-webpack-plugin": "^14.0.0",
@@ -57,11 +59,11 @@
     "css-loader": "^7.1.2",
     "eslint": "^8.57.1",
     "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-builtin-compat": "^0.0.2",
-    "eslint-plugin-compat": "^6.2.1",
+    "eslint-plugin-compat": "^6.0.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.6.0",
+    "eslint-plugin-vue": "^9.32.0",
     "html-loader": "^5.1.0",
     "html-webpack-plugin": "^5.6.3",
     "husky": "^9.1.7",
@@ -80,15 +82,13 @@
     "stylelint-config-standard-scss": "^13.1.0",
     "terser-webpack-plugin": "^5.3.12",
     "thread-loader": "^4.0.4",
+    "vue-loader": "^17.4.2",
     "webpack": "^5.106.1",
     "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-cli": "^5.1.4",
+    "webpack-cli": "^7.0.2",
     "webpack-dev-server": "^5.2.3",
     "webpack-merge": "^6.0.1",
     "webpackbar": "^7.0.0"
-  },
-  "dependencies": {
-    "core-js": "^3.40.0"
   },
   "browserslist": [
     "iOS >= 12",
