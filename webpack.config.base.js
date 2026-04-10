@@ -61,7 +61,6 @@ function getCommonConfig(isProduction = false) {
                   {
                     useBuiltIns: 'usage',
                     corejs: 3,
-                    modules: 'auto',
                   },
                 ],
               ],
