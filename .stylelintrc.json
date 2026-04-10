@@ -4,6 +4,8 @@
         "stylelint-config-standard-scss"
     ],
     "rules": {
+        "selector-class-pattern": null,
+        "no-descending-specificity": null,
         "scss/no-global-function-names": null,
         "color-no-invalid-hex": true,
         "font-family-no-duplicate-names": true,

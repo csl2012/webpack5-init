@@ -61,24 +61,24 @@ function getCommonConfig(isProduction = false) {
                   {
                     useBuiltIns: 'usage',
                     corejs: 3,
+                    modules: 'auto',
                   },
                 ],
               ],
               plugins: [
-                '@babel/plugin-proposal-class-properties',
-                '@babel/plugin-proposal-object-rest-spread',
-                '@babel/plugin-proposal-optional-chaining',
-                '@babel/plugin-proposal-nullish-coalescing-operator',
+                // 运行时转换，减少重复代码
                 [
                   '@babel/plugin-transform-runtime',
                   {
-                    corejs: 3,
+                    corejs: 3, // 使用 core-js 3 提供 polyfill
                   },
                 ],
               ],
               cacheDirectory: true, // 开启缓存
-              cacheCompression: false, // 开发环境不压缩缓存文件
-              compact: false, // 开发环境不压缩代码
+              ...(!isProduction && {
+                cacheCompression: false, // 开发环境不压缩缓存文件
+                compact: false, // 开发环境不压缩代码
+              }),
             },
           },
         },
@@ -129,6 +129,10 @@ function getCommonConfig(isProduction = false) {
               loader: 'sass-loader',
               options: {
                 sourceMap: !isProduction,
+                implementation: require('sass'),
+                sassOptions: {
+                  api: 'modern-compiler',
+                },
               },
             },
           ],

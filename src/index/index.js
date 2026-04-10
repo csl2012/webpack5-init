@@ -24,7 +24,7 @@ async function fetchData() {
     const response = await new Promise((resolve) => {
       setTimeout(() => resolve({ data: 'Success!' }), 1000);
     });
-    console.log('Data:', response.data);
+    console.log('Data:', undefined ?? response.data);
   } catch (error) {
     console.error('Error:', error);
   }
