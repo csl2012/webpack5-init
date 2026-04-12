@@ -2,6 +2,14 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const Border1pxPlugin = require('./src/utils/webpack-plugins/Border1pxPlugin');
+
+const pagesPath = {
+  pages: 'src/pages', // 页面文件夹
+  components: 'src/components', // 组件文件夹
+  assets: 'src/assets', // 静态资源文件夹
+  utils: 'src/utils', // 工具函数文件夹
+};
 
 const pages = [
   {
@@ -16,13 +24,13 @@ const pages = [
 
 const entry = {};
 pages.forEach((page) => {
-  entry[page.name] = `./src/${page.name}/index.js`;
+  entry[page.name] = `./${pagesPath.pages}/${page.name}/index.js`;
 });
 
 function createHtmlPlugins(isProduction) {
   return pages.map((page) => {
     return new HtmlWebpackPlugin({
-      template: `./src/${page.name}/index.html`,
+      template: `./${pagesPath.pages}/${page.name}/index.html`,
       filename: `${page.name}.html`,
       chunks: [page.name],
       title: page.title,
@@ -30,9 +38,12 @@ function createHtmlPlugins(isProduction) {
       favicon: path.resolve(__dirname, 'public/favicon.ico'),
       minify: isProduction
         ? {
-            removeComments: true,
-            collapseWhitespace: true,
+            removeComments: true, // 删除注释
+            collapseWhitespace: true, // 删除空格换行
             removeAttributeQuotes: true,
+            minifyCSS: true, // 压缩内联CSS
+            minifyJS: true, // 压缩内联JS
+            keepClosingSlash: true,
           }
         : false,
     });
@@ -172,10 +183,6 @@ function getCommonConfig(isProduction = false) {
         //   ]
         // },
         {
-          test: /\.html$/,
-          use: 'html-loader',
-        },
-        {
           test: /\.(png|jpe?g|gif|svg)$/i,
           type: 'asset',
           parser: {
@@ -210,15 +217,19 @@ function getCommonConfig(isProduction = false) {
         },
       ],
     },
-    plugins: [new WebpackBar(), ...createHtmlPlugins(isProduction)],
+    plugins: [
+      new WebpackBar(),
+      new Border1pxPlugin(),
+      ...createHtmlPlugins(isProduction),
+    ],
     resolve: {
       extensions: ['.js'],
       alias: {
         '@': path.resolve(__dirname, 'src'),
-        '@components': path.resolve(__dirname, 'src/components'),
-        '@pages': path.resolve(__dirname, 'src/pages'),
-        '@utils': path.resolve(__dirname, 'src/utils'),
-        '@assets': path.resolve(__dirname, 'src/assets'),
+        '@components': path.resolve(__dirname, pagesPath.components),
+        '@pages': path.resolve(__dirname, pagesPath.pages),
+        '@utils': path.resolve(__dirname, pagesPath.utils),
+        '@assets': path.resolve(__dirname, pagesPath.assets),
       },
     },
     cache: {

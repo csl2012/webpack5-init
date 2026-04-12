@@ -1,4 +1,4 @@
-import './style.css';
+import './style.scss';
 
 // ES6+ syntax examples
 const aboutContent = {
