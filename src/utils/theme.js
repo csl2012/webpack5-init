@@ -1,19 +1,48 @@
 // utils/theme.js
-export function getTheme(theme = 'light') {
+const THEME_KEY = 'app-theme';
+
+// 获取当前主题（优先本地存储）
+export function getTheme(theme) {
+  const saved = localStorage.getItem(THEME_KEY) || 'auto';
+  const finalTheme = theme || saved;
+
   const isDark =
-    theme === 'dark' ||
-    (theme === 'auto' &&
+    finalTheme === 'dark' ||
+    (finalTheme === 'auto' &&
       window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return {
     isDark,
-    bg: isDark ? '#1c1c1e' : '#ffffff',
-    bgSecondary: isDark ? '#2c2c2e' : '#f7f7f7',
-    text: isDark ? '#f5f5f7' : '#111111',
-    textSecondary: isDark ? '#999' : '#666',
-    border: isDark ? '#3a3a3c' : '#f0f0f0',
-    danger: '#ff3b30',
-    primary: '#007bff',
-    mask: 'rgba(0,0,0,0.45)',
+    theme: finalTheme,
+    bg: getCSSVar('--color-bg-page'),
+    bgSecondary: getCSSVar('--color-bg-card'),
+    text: getCSSVar('--color-text-primary'),
+    textSecondary: getCSSVar('--color-text-secondary'),
+    border: getCSSVar('--color-border'),
+    danger: getCSSVar('--color-danger'),
+    primary: getCSSVar('--color-btn-primary-bg'),
+    mask: getCSSVar('--color-bg-mask'),
   };
+}
+
+// 辅助函数：获取 CSS 变量值
+function getCSSVar(varName) {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(varName)
+    .trim();
+}
+
+// 设置主题（全局切换）
+export function setTheme(theme) {
+  localStorage.setItem(THEME_KEY, theme);
+  applyTheme();
+}
+
+// 应用主题到页面
+export function applyTheme() {
+  const { isDark } = getTheme();
+  document.documentElement.setAttribute(
+    'data-theme',
+    isDark ? 'dark' : 'light',
+  );
 }

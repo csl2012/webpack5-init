@@ -1,4 +1,4 @@
-import { getTheme } from './theme';
+import { getCSSVar } from './index';
 
 const toastQueue = [];
 let toastShowing = false;
@@ -9,8 +9,7 @@ function showNextToast() {
   if (!next) return;
 
   toastShowing = true;
-  const { message, type = 'info', duration = 2000, theme } = next;
-  const t = getTheme(theme);
+  const { message, type = 'info', duration = 2000 } = next;
 
   const old = document.querySelector('.toast-box');
   if (old) old.remove();
@@ -19,10 +18,10 @@ function showNextToast() {
   el.className = 'toast-box';
 
   const colorMap = {
-    success: t.isDark ? 'rgba(40, 209, 72, 0.85)' : 'rgba(0, 179, 61, 0.9)',
-    error: t.isDark ? 'rgba(255, 59, 48, 0.85)' : 'rgba(241, 47, 31, 0.9)',
-    warning: t.isDark ? 'rgba(255, 149, 0, 0.85)' : 'rgba(255, 143, 0, 0.9)',
-    info: t.isDark ? 'rgba(70, 70, 70, 0.85)' : 'rgba(30, 30, 30, 0.85)',
+    success: getCSSVar('--color-success'),
+    error: getCSSVar('--color-danger'),
+    warning: getCSSVar('--color-warning'),
+    info: getCSSVar('--color-info'),
   };
 
   el.style.cssText = `

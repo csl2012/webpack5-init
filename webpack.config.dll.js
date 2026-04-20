@@ -2,6 +2,9 @@
 const path = require('path');
 const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const resolve = (pathStr) => {
+  return path.resolve(__dirname, pathStr);
+};
 
 module.exports = {
   mode: 'production',
@@ -13,11 +16,13 @@ module.exports = {
       // 'react',
       // 'react-dom',
       // 'lodash',
-      // 'axios'
+      'axios',
+      // 'vue',
+      'mitt',
     ],
   },
   output: {
-    path: path.resolve(__dirname, 'dist/dll'),
+    path: resolve('dist/dll'),
     filename: '[name].[fullhash].dll.js',
     library: '[name]_[fullhash]',
   },
@@ -25,7 +30,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new webpack.DllPlugin({
       name: '[name]_[fullhash]',
-      path: path.resolve(__dirname, 'dist/dll/[name]-manifest.json'),
+      path: resolve('dist/dll/[name]-manifest.json'),
       context: __dirname,
     }),
   ],

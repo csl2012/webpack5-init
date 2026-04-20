@@ -2,7 +2,11 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const Border1pxPlugin = require('./src/utils/webpack-plugins/Border1pxPlugin');
+const GlobalAssetsPlugin = require('./src/utils/webpack-plugins/GlobalAssetsPlugin');
+
+const resolve = (pathStr) => {
+  return path.resolve(__dirname, pathStr);
+};
 
 const pagesPath = {
   pages: 'src/pages', // 页面文件夹
@@ -35,7 +39,16 @@ function createHtmlPlugins(isProduction) {
       chunks: [page.name],
       title: page.title,
       inject: 'body',
-      favicon: path.resolve(__dirname, 'public/favicon.ico'),
+      favicon: resolve('public/favicon.ico'),
+      // 👇 核心：把 WebP 检测内联 script 插到 HEAD 最顶部
+      meta: {
+        // 随便一个 key，用来占位
+        webpDetect: {
+          content: '',
+          // 关键：这段内容会被放到 head 最前面
+          position: 'headPrepend',
+        },
+      },
       minify: isProduction
         ? {
             removeComments: true, // 删除注释
@@ -54,14 +67,14 @@ function getCommonConfig(isProduction = false) {
   return {
     entry,
     output: {
-      path: path.resolve(__dirname, 'dist'),
+      path: resolve('dist'),
       clean: true,
     },
     module: {
       rules: [
         {
           test: /\.js$/,
-          include: path.resolve(__dirname, 'src'), // 只处理 src 目录下的 js 文件
+          include: resolve('src'), // 只处理 src 目录下的 js 文件
           exclude: /node_modules/,
           use: {
             loader: 'babel-loader',
@@ -219,17 +232,61 @@ function getCommonConfig(isProduction = false) {
     },
     plugins: [
       new WebpackBar(),
-      new Border1pxPlugin(),
+      new GlobalAssetsPlugin({
+        assets: [
+          // {
+          //   path: resolve('src/utils/webpack-plugins/assets/styles/normalize.css'),
+          //   position: 'head'
+          // },
+          {
+            path: resolve('src/utils/webpack-plugins/assets/styles/theme.css'),
+            position: 'head',
+            type: 'style',
+          },
+          {
+            path: resolve(
+              'src/utils/webpack-plugins/assets/styles/border-1px.css',
+            ),
+            position: 'head',
+            type: 'style',
+          },
+          {
+            path: resolve(
+              'src/utils/webpack-plugins/assets/js/webp-detector.js',
+            ),
+            position: 'head',
+            type: 'script',
+          },
+          {
+            path: resolve('src/utils/webpack-plugins/assets/js/border-1px.js'),
+            position: 'head',
+            type: 'script',
+            attributes: {
+              async: true,
+            },
+          },
+          {
+            path: resolve(
+              'src/utils/webpack-plugins/assets/js/webp-background-replacer.js',
+            ),
+            position: 'head-end',
+            type: 'script',
+            attributes: {
+              defer: true,
+            },
+          },
+        ], // 预设的全局资源列表，支持内联和外链，样式和脚本
+      }), // 全局资源注入插件，支持配置多个样式和脚本以及位置和属性
       ...createHtmlPlugins(isProduction),
     ],
     resolve: {
       extensions: ['.js'],
       alias: {
-        '@': path.resolve(__dirname, 'src'),
-        '@components': path.resolve(__dirname, pagesPath.components),
-        '@pages': path.resolve(__dirname, pagesPath.pages),
-        '@utils': path.resolve(__dirname, pagesPath.utils),
-        '@assets': path.resolve(__dirname, pagesPath.assets),
+        '@': resolve('src'),
+        '@components': resolve(pagesPath.components),
+        '@pages': resolve(pagesPath.pages),
+        '@utils': resolve(pagesPath.utils),
+        '@assets': resolve(pagesPath.assets),
       },
     },
     cache: {
@@ -237,7 +294,7 @@ function getCommonConfig(isProduction = false) {
       buildDependencies: {
         config: [__filename],
       },
-      cacheDirectory: path.resolve(__dirname, '.webpack-cache'),
+      cacheDirectory: resolve('.webpack-cache'),
     },
   };
 }

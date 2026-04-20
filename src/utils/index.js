@@ -7,6 +7,13 @@ import { getTheme } from './theme';
 import { to } from './to';
 import { toast } from './toast';
 
+// 辅助函数：获取 CSS 变量值
+function getCSSVar(varName) {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(varName)
+    .trim();
+}
+
 export {
   actionSheet,
   apiClient,
@@ -19,4 +26,5 @@ export {
   getTheme,
   toast,
   to,
+  getCSSVar,
 };

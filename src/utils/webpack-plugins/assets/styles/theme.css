@@ -1,0 +1,88 @@
+:root {
+  /* 背景体系 */
+  --color-bg-page: #fff;
+  --color-bg-card: #fff;
+  --color-bg-input: #f7f8fa;
+  --color-bg-mask: rgb(0 0 0 / 45%);
+
+  /* 文字体系 */
+  --color-text-primary: #1d2129;
+  --color-text-regular: #4e5969;
+  --color-text-secondary: #86909c;
+  --color-text-disable: #c9cdd4;
+  --color-text-link: #1677ff;
+
+  /* 边框 & 分割线 */
+  --color-border: #e5e6eb;
+  --color-border-light: #f2f3f5;
+
+  /* 功能状态色 */
+  --color-success: #00b42a;
+  --color-warning: #ff7d00;
+  --color-danger: #f53f3f;
+  --color-info: #86909c;
+
+  /* 按钮 */
+  --color-btn-primary-bg: #1677ff;
+  --color-btn-primary-text: #fff;
+  --color-btn-default-bg: #fff;
+  --color-btn-default-text: #4e5969;
+  --color-btn-default-border: #e5e6eb;
+
+  /* 投影 */
+  --shadow-1: 0 2px 5px rgb(0 0 0 / 5%);
+  --shadow-2: 0 2px 10px rgb(0 0 0 / 10%);
+
+  /* 滚动条 */
+  --scrollbar-bg: #f1f1f1;
+  --scrollbar-thumb: #c1c1c1;
+
+  /* 文本选中 */
+  --selection-bg: #b8d7ff;
+  --selection-text: #1d2129;
+}
+
+/* 暗黑模式 */
+[data-theme='dark'] {
+  /* 背景体系 */
+  --color-bg-page: #141414;
+  --color-bg-card: #1f1f1f;
+  --color-bg-input: #2a2a2a;
+  --color-bg-mask: rgb(0 0 0 / 65%);
+
+  /* 文字体系 */
+  --color-text-primary: #e5e6eb;
+  --color-text-regular: #c9cdd4;
+  --color-text-secondary: #86909c;
+  --color-text-disable: #5e6167;
+  --color-text-link: #4096ff;
+
+  /* 边框 & 分割线 */
+  --color-border: #3a3a3c;
+  --color-border-light: #2b2b2c;
+
+  /* 功能状态色（降低饱和度，更护眼） */
+  --color-success: #27a859;
+  --color-warning: #ff9500;
+  --color-danger: #f75b5b;
+  --color-info: #86909c;
+
+  /* 按钮 */
+  --color-btn-primary-bg: #1677ff;
+  --color-btn-primary-text: #fff;
+  --color-btn-default-bg: #2a2a2a;
+  --color-btn-default-text: #c9cdd4;
+  --color-btn-default-border: #3a3a3c;
+
+  /* 投影：暗黑下用浅色弱投影或取消 */
+  --shadow-1: 0 1px 2px rgb(255 255 255 / 5%);
+  --shadow-2: 0 2px 8px rgb(255 255 255 / 8%);
+
+  /* 滚动条 */
+  --scrollbar-bg: #1f1f1f;
+  --scrollbar-thumb: #5e6167;
+
+  /* 文本选中 */
+  --selection-bg: #3a60b1;
+  --selection-text: #e5e6eb;
+}

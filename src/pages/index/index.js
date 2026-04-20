@@ -1,4 +1,5 @@
 import './style.scss';
+import defaultBanner from '@/assets/images/default-banner.png';
 
 // ES6+ syntax examples
 const name = 'Webpack 5';
@@ -65,6 +66,7 @@ app.innerHTML = `
   <div class="container">
     <h2>${message}</h2>
     <button id="btn">Click Me</button>
+    <img src="${defaultBanner}" alt="Sample Image" class="sample-image" data-webp>
   </div>
 `;
 

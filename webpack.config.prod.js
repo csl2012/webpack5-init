@@ -10,10 +10,14 @@ const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const getCommonConfig = require('./webpack.config.base.js');
 
-const dllFiles = glob.sync(path.resolve(__dirname, 'dist/dll/*.dll.js'));
+const resolve = (pathStr) => {
+  return path.resolve(__dirname, pathStr);
+};
+
+const dllFiles = glob.sync(resolve('dist/dll/*.dll.js'));
 const common = getCommonConfig(true);
 
-const manifestPath = path.resolve(__dirname, 'dist/dll/vendor-manifest.json');
+const manifestPath = resolve('dist/dll/vendor-manifest.json');
 if (!fs.existsSync(manifestPath)) {
   throw new Error('DLL manifest not found. Run "npm run build:dll" first.');
 }
@@ -36,8 +40,8 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, 'public'),
-          to: path.resolve(__dirname, 'dist'),
+          from: resolve('public'),
+          to: resolve('dist'),
           globOptions: {
             ignore: ['**/.gitkeep'],
           },
