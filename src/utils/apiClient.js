@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from './toast';
 
 // ==================== 配置常量 ====================
 // API 基础配置
@@ -323,9 +324,48 @@ apiClient.interceptors.response.use(
       return handleRequestRetry(originalRequest);
     }
 
+    // 显示错误提示
+    showErrorToast(error, originalRequest);
+
     return Promise.reject(error);
   },
 );
+
+/**
+ * 显示错误提示
+ * @param {Error} error - 错误对象
+ * @param {Object} config - Axios 请求配置
+ */
+function showErrorToast(error, config) {
+  const status = error.response?.status;
+  const errorMessage = error.response?.data?.message || error.message;
+
+  // 错误消息映射
+  const errorMessages = {
+    400: errorMessage || '请求参数错误',
+    401: '登录已过期，请重新登录',
+    403: '没有权限执行此操作',
+    404: '请求的资源不存在',
+    500: '服务器内部错误',
+    502: '网关错误',
+    503: '服务暂时不可用',
+    504: '请求超时',
+  };
+
+  // 根据状态码获取错误消息
+  if (status && errorMessages[status]) {
+    toast.error(errorMessages[status]);
+  } else {
+    // 处理网络错误和其他错误
+    if (error.message.includes('Network Error')) {
+      toast.error('网络连接失败，请检查网络设置');
+    } else if (error.message.includes('timeout')) {
+      toast.error('请求超时，请稍后重试');
+    } else {
+      toast.error(errorMessage || '请求失败，请稍后重试');
+    }
+  }
+}
 
 /**
  * 处理Token刷新逻辑
