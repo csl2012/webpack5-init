@@ -104,25 +104,6 @@ function getTokenStorageKeys(baseURL) {
 }
 
 /**
- * 清除认证相关的存储数据
- */
-function clearAuthStorage() {
-  try {
-    // 获取所有 localStorage 键
-    const keys = Object.keys(localStorage);
-
-    // 只清除与 token 相关的键
-    keys.forEach((key) => {
-      if (key.startsWith('access_token_') || key.startsWith('refresh_token_')) {
-        localStorage.removeItem(key);
-      }
-    });
-  } catch (e) {
-    console.warn('clearAuthStorage failed', e);
-  }
-}
-
-/**
  * 合并配置合并全局配置与接口级配置，接口级配置优先
  * @param {Object} config - 自定义配置
  * @returns {Object} - 合并后的配置
@@ -153,8 +134,7 @@ function extractToken(response, tokenPath) {
  */
 function redirectToLogin() {
   try {
-    // 只清除与认证相关的存储数据，保留其他数据
-    clearAuthStorage();
+    localStorage.clear();
     window.location.href = LOGIN_CONFIG.LOGIN_PATH;
   } catch (e) {
     console.warn('redirectToLogin failed', e);

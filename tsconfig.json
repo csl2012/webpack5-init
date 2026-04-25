@@ -1,0 +1,57 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "ignoreDeprecations": "6.0",
+    "strict": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@pages/*": [
+        "./src/pages/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "@assets/*": [
+        "./src/assets/*"
+      ]
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "sourceMap": true,
+    "declaration": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": true
+  },
+  "include": [
+    "src/**/*",
+    "src/**/*.vue",
+    "src/**/*.js",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".webpack-cache",
+    "*.js",          
+    "webpack.*.js"
+  ]
+}

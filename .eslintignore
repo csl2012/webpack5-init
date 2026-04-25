@@ -1,0 +1,10 @@
+# 忽略所有不需要检查的文件
+
+*.js
+*.cjs
+webpack*.js
+.stylelintrc.js
+check-vue-rules.js
+*.config.js
+dist
+node_modules

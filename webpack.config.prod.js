@@ -1,7 +1,6 @@
 // webpack.config.prod.js
 const path = require('path');
 const fs = require('fs');
-const glob = require('glob');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
@@ -9,103 +8,112 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const getCommonConfig = require('./webpack.config.base.js');
+const { PurgeCSSPlugin } = require('purgecss-webpack-plugin');
+const { globSync } = require('glob'); // 只用 glob，大厂标准
 
-const resolve = (pathStr) => {
-  return path.resolve(__dirname, pathStr);
-};
+// 路径
+const resolve = (pathStr) => path.resolve(__dirname, pathStr);
+const PATHS = { src: resolve('src') };
 
-const dllFiles = glob.sync(resolve('dist/dll/*.dll.js'));
-const common = getCommonConfig(true);
-
+// DLL 检查
 const manifestPath = resolve('dist/dll/vendor-manifest.json');
 if (!fs.existsSync(manifestPath)) {
-  throw new Error('DLL manifest not found. Run "npm run build:dll" first.');
+  throw new Error('请先运行：npm run build:dll');
 }
-const dllManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+const dllManifest = require(manifestPath);
+const dllFiles = globSync(resolve('dist/dll/*.dll.js'));
+
+const common = getCommonConfig(true);
+
 module.exports = {
   ...common,
   mode: 'production',
-  // devtool: 'source-map',
   output: {
     ...common.output,
     filename: 'js/[name].[contenthash].js',
-    chunkFilename: 'js/[id].[contenthash].js',
+    chunkFilename: 'js/[id].[contenthash].chunk.js',
+    publicPath: '/', // 大厂必须加
   },
+
   plugins: [
     ...common.plugins,
+
+    // CSS  Tree Shaking 清理死样式 ✅
+    new PurgeCSSPlugin({
+      paths: globSync([`${PATHS.src}/**/*.{js,ts,html,vue}`]),
+      safelist: ['html', 'body'],
+      defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
+    }),
+
+    // 提取 CSS ✅
     new MiniCssExtractPlugin({
       filename: 'css/[name].[contenthash].css',
       chunkFilename: 'css/[id].[contenthash].chunk.css',
     }),
+
+    // 复制 public 文件夹
     new CopyWebpackPlugin({
       patterns: [
         {
           from: resolve('public'),
           to: resolve('dist'),
-          globOptions: {
-            ignore: ['**/.gitkeep'],
-          },
+          globOptions: { ignore: ['**/.gitkeep'] },
         },
       ],
     }),
-    new webpack.DllReferencePlugin({
-      context: __dirname,
-      manifest: dllManifest,
-      // manifest: require('./dist/dll/vendor-manifest.json'),
-    }),
-    ...dllFiles.map((file) => {
-      return new AddAssetHtmlPlugin({
-        filepath: file,
-        outputPath: 'dll',
-        publicPath: 'dll',
-        includeSourcemap: false,
-      });
-    }),
+
+    // DLL 加速
+    new webpack.DllReferencePlugin({ manifest: dllManifest }),
+
+    // 注入 DLL
+    ...dllFiles.map(
+      (file) =>
+        new AddAssetHtmlPlugin({
+          filepath: file,
+          outputPath: 'dll',
+          publicPath: 'dll',
+        }),
+    ),
+
+    // GZIP 压缩 ✅
     new CompressionPlugin({
       algorithm: 'gzip',
       test: /\.(js|css|html|svg)$/,
-      threshold: 8192,
-      minRatio: 0.8,
+      threshold: 1024,
+      minRatio: 0.99,
+    }),
+
+    // BROTLI 压缩（比 gzip 更小）✅
+    new CompressionPlugin({
+      algorithm: 'brotliCompress',
+      test: /\.(js|css|html|svg)$/,
+      threshold: 1024,
+      minRatio: 0.99,
+      compressionOptions: { level: 11 },
     }),
   ],
+
+  // 大厂级优化 ✅✅✅
   optimization: {
-    usedExports: true, // 标记未使用导出
-    minimize: true, // 压缩并删除死代码
+    minimize: true,
+    usedExports: true, // 死代码标记
     minimizer: [
       new TerserPlugin({
         terserOptions: {
-          compress: {
-            drop_console: true, // 移除 console.log 等语句
-            drop_debugger: true, // 移除 debugger 语句
-          },
-          output: {
-            comments: false, // 移除所有注释
-          },
+          compress: { drop_console: true, drop_debugger: true },
+          output: { comments: false },
         },
       }),
     ],
     splitChunks: {
       chunks: 'all',
       cacheGroups: {
-        vendor: {
-          name: 'vendors',
-          test: /[\\/]node_modules[\\/]/,
-          priority: 10,
-        },
-        common: {
-          name: 'common',
-          minChunks: 2,
-          priority: 5,
-          reuseExistingChunk: true,
-        },
+        vendor: { name: 'vendors', test: /node_modules/, priority: 10 },
+        common: { name: 'common', minChunks: 2, reuseExistingChunk: true },
       },
     },
+    runtimeChunk: 'single', // 修复长期缓存问题 ✅
   },
-  stats: {
-    assets: true,
-    colors: true,
-    errors: true,
-    errorDetails: true,
-    hash: true,
-  },
+
+  stats: 'errors-warnings', // 精简日志
 };

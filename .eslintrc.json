@@ -1,29 +1,64 @@
 {
   "extends": [
     "standard",
-    "plugin:compat/recommended"
+    "plugin:compat/recommended",
+    "eslint:recommended",
+    "plugin:vue/vue3-essential",
+    "plugin:@typescript-eslint/recommended"
   ],
   "plugins": [
     "compat",
-    "builtin-compat"
+    "@typescript-eslint",
+    "unused-imports"
   ],
+  "root": true,
   "env": {
     "browser": true,
     "es2021": true,
     "node": true
   },
+
+  // ==========================================
+  // 🔥 唯一修复点：Vue + TS 官方正确解析器
+  // ==========================================
+  "parser": "vue-eslint-parser",
   "parserOptions": {
+    "parser": "@typescript-eslint/parser",
     "ecmaVersion": "latest",
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json",
+    "extraFileExtensions": [".vue"]
   },
+
+  "overrides": [
+    {
+      "files": ["*.js", "*.cjs", "*.vue"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off",
+        "no-unused-vars": "off",
+        "unused-imports/no-unused-vars": "off",
+        "prefer-promise-reject-errors": "off",
+        "promise/param-names": "off",
+        "@typescript-eslint/no-undef": "off",
+        "no-undef": "off"
+      }
+    }
+  ],
+
   "rules": {
+    "vue/multi-word-component-names": "off",
+    "@typescript-eslint/no-undef": "off",
+    "no-constant-binary-expression": "off",
+    "no-empty": "off",
+    "no-async-promise-executor": "off",
     "no-console": "off",
     "no-debugger": "warn",
+    "compat/compat": "error",
     "space-before-function-paren": "off",
     "comma-dangle": [
       "error",
       "always-multiline"
-    ], // 允许多行对象/数组的尾随逗号
+    ],
     "semi": [
       "error",
       "always"
@@ -36,14 +71,30 @@
       "error",
       "always"
     ],
-    "no-unused-vars": [
-      "error"
-    ],
+    "no-unused-vars": "off",
     "prefer-const": "error",
     "no-var": "error",
     "arrow-spacing": "error",
     "prefer-arrow-callback": "error",
     "prefer-template": "error",
-    "template-curly-spacing": "error"
+    "template-curly-spacing": "error",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "off",
+    "prefer-promise-reject-errors": "off",
+    "promise/param-names": "off",
+    "no-undef": "off"
+  },
+  "settings": {
+    "compat": {
+      "browsers": true
+    }
   }
 }

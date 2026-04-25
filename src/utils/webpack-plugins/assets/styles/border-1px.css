@@ -1,4 +1,6 @@
 /* 通用基础样式：全场景共用 */
+
+/* 需要结合 border-1px.js 使用，提供 1px 物理像素边框的解决方案，兼容所有设备和浏览器。 */
 .border-1px {
   position: relative;
 

@@ -1,43 +1,45 @@
+// webpack.config.base.js
+const fs = require('fs');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const GlobalAssetsPlugin = require('./src/utils/webpack-plugins/GlobalAssetsPlugin');
+const { globSync } = require('glob');
+const { VueLoaderPlugin } = require('vue-loader');
 
-const resolve = (pathStr) => {
-  return path.resolve(__dirname, pathStr);
-};
+const resolve = (pathStr) => path.resolve(__dirname, pathStr);
 
 const pagesPath = {
-  pages: 'src/pages', // 页面文件夹
-  components: 'src/components', // 组件文件夹
-  assets: 'src/assets', // 静态资源文件夹
-  utils: 'src/utils', // 工具函数文件夹
+  pages: 'src/pages',
+  components: 'src/components',
+  assets: 'src/assets',
+  utils: 'src/utils',
 };
 
-const pages = [
-  {
-    name: 'index',
-    title: 'Home Page',
-  },
-  {
-    name: 'about',
-    title: 'About Page',
-  },
-];
-
+// ==============================================
+// 🔥 唯一入口：base 自动扫描 JS + TS，prod 不覆盖
+// ==============================================
+// 自动扫描入口（跨平台 Windows / Mac / Linux 100% 不炸）
+const entryFiles = globSync('src/pages/*/index.{js,ts}');
 const entry = {};
-pages.forEach((page) => {
-  entry[page.name] = `./${pagesPath.pages}/${page.name}/index.js`;
+
+entryFiles.forEach((file) => {
+  // 🔥 核心：统一把 \ 换成 /，解决 Windows 路径报错
+  const correctPath = file.replace(/\\/g, '/');
+  const parts = correctPath.split('/');
+  const pageName = parts[2]; // index / about
+
+  entry[pageName] = `./${correctPath}`;
 });
 
+// 自动生成 HTML 插件
 function createHtmlPlugins(isProduction) {
-  return pages.map((page) => {
+  return Object.keys(entry).map((pageName) => {
     return new HtmlWebpackPlugin({
-      template: `./${pagesPath.pages}/${page.name}/index.html`,
-      filename: `${page.name}.html`,
-      chunks: [page.name],
-      title: page.title,
+      template: `./${pagesPath.pages}/${pageName}/index.html`,
+      filename: `${pageName}.html`,
+      chunks: [pageName],
       inject: 'body',
       favicon: resolve('public/favicon.ico'),
       // 👇 核心：把 WebP 检测内联 script 插到 HEAD 最顶部
@@ -51,11 +53,11 @@ function createHtmlPlugins(isProduction) {
       },
       minify: isProduction
         ? {
-            removeComments: true, // 删除注释
-            collapseWhitespace: true, // 删除空格换行
+            removeComments: true,
+            collapseWhitespace: true,
             removeAttributeQuotes: true,
-            minifyCSS: true, // 压缩内联CSS
-            minifyJS: true, // 压缩内联JS
+            minifyCSS: true,
+            minifyJS: true,
             keepClosingSlash: true,
           }
         : false,
@@ -73,58 +75,45 @@ function getCommonConfig(isProduction = false) {
     module: {
       rules: [
         {
+          test: /\.vue$/,
+          loader: 'vue-loader',
+          include: resolve('src'),
+          exclude: /node_modules/,
+        },
+        {
+          test: /\.ts$/,
+          loader: 'ts-loader',
+          include: resolve('src'),
+          exclude: /node_modules/,
+          options: {
+            transpileOnly: true,
+            appendTsSuffixTo: [/\.vue$/], // 👈 支持 Vue + TS
+          },
+        },
+        // JS Babel
+        {
           test: /\.js$/,
-          include: resolve('src'), // 只处理 src 目录下的 js 文件
+          include: resolve('src'),
           exclude: /node_modules/,
           use: {
             loader: 'babel-loader',
             options: {
               presets: [
-                [
-                  '@babel/preset-env',
-                  {
-                    useBuiltIns: 'usage',
-                    corejs: 3,
-                  },
-                ],
+                ['@babel/preset-env', { useBuiltIns: 'usage', corejs: 3 }],
               ],
-              plugins: [
-                // 运行时转换，减少重复代码
-                [
-                  '@babel/plugin-transform-runtime',
-                  {
-                    corejs: 3, // 使用 core-js 3 提供 polyfill
-                  },
-                ],
-              ],
-              cacheDirectory: true, // 开启缓存
-              ...(!isProduction && {
-                cacheCompression: false, // 开发环境不压缩缓存文件
-                compact: false, // 开发环境不压缩代码
-              }),
+              plugins: [['@babel/plugin-transform-runtime', { corejs: 3 }]],
+              cacheDirectory: true,
+              ...(!isProduction && { cacheCompression: false, compact: false }),
             },
           },
         },
+        // CSS
         {
           test: /\.css$/,
           use: [
             isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
-            {
-              loader: 'css-loader',
-              options: {
-                modules: false,
-                sourceMap: !isProduction,
-              },
-            },
-            {
-              loader: 'postcss-loader',
-              options: {
-                postcssOptions: {
-                  plugins: ['postcss-preset-env', 'autoprefixer'],
-                },
-                sourceMap: !isProduction,
-              },
-            },
+            'css-loader',
+            'postcss-loader',
           ],
         },
         // SCSS
@@ -132,101 +121,35 @@ function getCommonConfig(isProduction = false) {
           test: /\.scss$/,
           use: [
             isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
-            {
-              loader: 'css-loader',
-              options: {
-                modules: false,
-                sourceMap: !isProduction,
-              },
-            },
-            {
-              loader: 'postcss-loader',
-              options: {
-                postcssOptions: {
-                  plugins: ['postcss-preset-env', 'autoprefixer'],
-                },
-                sourceMap: !isProduction,
-              },
-            },
-            {
-              loader: 'sass-loader',
-              options: {
-                sourceMap: !isProduction,
-                implementation: require('sass'),
-                sassOptions: {
-                  api: 'modern-compiler',
-                },
-              },
-            },
+            'css-loader',
+            'postcss-loader',
+            'sass-loader',
           ],
         },
-        // Less
-        // {
-        //   test: /\.less$/,
-        //   use: [
-        //     isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
-        //     {
-        //       loader: 'css-loader',
-        //       options: {
-        //         modules: false,
-        //         sourceMap: !isProduction
-        //       }
-        //     },
-        //     {
-        //       loader: 'postcss-loader',
-        //       options: {
-        //         postcssOptions: {
-        //           plugins: [
-        //             'postcss-preset-env',
-        //             'autoprefixer'
-        //           ]
-        //         },
-        //         sourceMap: !isProduction
-        //       }
-        //     },
-        //     {
-        //       loader: 'less-loader',
-        //       options: {
-        //         lessOptions: {
-        //           javascriptEnabled: true
-        //         },
-        //         sourceMap: !isProduction
-        //       }
-        //     }
-        //   ]
-        // },
+        // 图片
         {
           test: /\.(png|jpe?g|gif|svg)$/i,
           type: 'asset',
-          parser: {
-            dataUrlCondition: {
-              maxSize: 8192,
-            },
-          },
-          generator: {
-            filename: 'images/[name].[fullhash][ext]',
-          },
+          parser: { dataUrlCondition: { maxSize: 8192 } },
+          generator: { filename: 'images/[name].[fullhash][ext]' },
         },
+        // 字体
         {
           test: /\.(woff|woff2|eot|ttf|otf)$/i,
           type: 'asset/resource',
-          generator: {
-            filename: 'fonts/[name].[fullhash][ext]',
-          },
+          generator: { filename: 'fonts/[name].[fullhash][ext]' },
         },
+        // 音频
         {
           test: /\.(mp3|wav|ogg)$/i,
           type: 'asset/resource',
-          generator: {
-            filename: 'audio/[name].[fullhash][ext]',
-          },
+          generator: { filename: 'audio/[name].[fullhash][ext]' },
         },
+        // 视频
         {
           test: /\.(mp4|webm|ogg)$/i,
           type: 'asset/resource',
-          generator: {
-            filename: 'video/[name].[fullhash][ext]',
-          },
+          generator: { filename: 'video/[name].[fullhash][ext]' },
         },
       ],
     },
@@ -234,10 +157,23 @@ function getCommonConfig(isProduction = false) {
       new WebpackBar(),
       new GlobalAssetsPlugin({
         assets: [
-          // {
-          //   path: resolve('src/utils/webpack-plugins/assets/styles/normalize.css'),
-          //   position: 'head'
-          // },
+          {
+            path: resolve(
+              'src/utils/webpack-plugins/assets/styles/normalize.min.css',
+            ),
+            position: 'head',
+            type: 'style',
+          },
+          {
+            path: resolve('src/utils/webpack-plugins/assets/styles/reset.scss'),
+            position: 'head',
+            type: 'style',
+          },
+          {
+            path: resolve('src/utils/webpack-plugins/assets/styles/mixin.scss'),
+            position: 'head',
+            type: 'style',
+          },
           {
             path: resolve('src/utils/webpack-plugins/assets/styles/theme.css'),
             position: 'head',
@@ -245,42 +181,29 @@ function getCommonConfig(isProduction = false) {
           },
           {
             path: resolve(
-              'src/utils/webpack-plugins/assets/styles/border-1px.css',
-            ),
-            position: 'head',
-            type: 'style',
-          },
-          {
-            path: resolve(
-              'src/utils/webpack-plugins/assets/js/webp-detector.js',
+              'src/utils/webpack-plugins/assets/js/global-scripts.js',
             ),
             position: 'head',
             type: 'script',
           },
-          {
-            path: resolve('src/utils/webpack-plugins/assets/js/border-1px.js'),
-            position: 'head',
-            type: 'script',
-            attributes: {
-              async: true,
-            },
-          },
-          {
-            path: resolve(
-              'src/utils/webpack-plugins/assets/js/webp-background-replacer.js',
-            ),
-            position: 'head-end',
-            type: 'script',
-            attributes: {
-              defer: true,
-            },
-          },
-        ], // 预设的全局资源列表，支持内联和外链，样式和脚本
-      }), // 全局资源注入插件，支持配置多个样式和脚本以及位置和属性
+          // {
+          //   path: resolve('src/utils/webpack-plugins/assets/styles/border-1px.css'),
+          //   position: 'head',
+          //   type: 'style',
+          // },
+          // {
+          //   path: resolve('src/utils/webpack-plugins/assets/js/webp-background-replacer.js'),
+          //   position: 'head-end',
+          //   type: 'script',
+          //   attributes: { defer: true },
+          // },
+        ],
+      }),
+      new VueLoaderPlugin(),
       ...createHtmlPlugins(isProduction),
     ],
     resolve: {
-      extensions: ['.js'],
+      extensions: ['.js', '.ts', '.vue', '.json'],
       alias: {
         '@': resolve('src'),
         '@components': resolve(pagesPath.components),
@@ -291,9 +214,7 @@ function getCommonConfig(isProduction = false) {
     },
     cache: {
       type: 'filesystem',
-      buildDependencies: {
-        config: [__filename],
-      },
+      buildDependencies: { config: [__filename] },
       cacheDirectory: resolve('.webpack-cache'),
     },
   };
