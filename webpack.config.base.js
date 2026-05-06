@@ -159,7 +159,7 @@ function getCommonConfig(isProduction = false) {
         assets: [
           {
             path: resolve(
-              'src/utils/webpack-plugins/assets/styles/normalize.min.css',
+              'src/utils/webpack-plugins/assets/styles/normalize.css',
             ),
             position: 'head',
             type: 'style',

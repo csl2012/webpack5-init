@@ -4,6 +4,11 @@
 // 例如: feat(auth): add login functionality
 module.exports = {
   extends: ['@commitlint/config-conventional'],
+  // 1. 强制必须写  scope（故事号），不写就报错
+  // 'scope-empty': [2, 'never'],
+
+  // 2. 允许任何格式的故事号：数字、S-123、故事-456 都可以
+  // 'scope-case': [0],
   // 自定义提交类型
   rules: {
     'type-enum': [
@@ -24,5 +29,8 @@ module.exports = {
     ],
     // 提交信息长度限制
     'subject-max-length': [1, 'always', 100],
+    // // 关闭长度限制
+    // 'header-max-length': [0],
+    // 'subject-max-length': [0],
   },
 };

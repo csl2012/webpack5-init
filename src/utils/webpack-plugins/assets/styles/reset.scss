@@ -1,77 +1,90 @@
 // ==============================================
-// 移动端自定义 Reset（基于 Normalize.css 补充）
+// 移动端自定义 Reset（大厂标准：基于 Normalize 扩展）
+// 适用：Vue3 + Vite/Rsbuild + 750px 设计稿 + 纯CSS适配
 // ==============================================
 
 // 1. 基础样式统一
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box; // 统一盒模型
-  -webkit-tap-highlight-color: transparent; // 清除 iOS 触摸高亮
+  box-sizing: border-box;
 }
 
-// 2. 字体与文本
+html {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent; // 配套清除点击高亮
+  font-size: 13.3333vw; /* 750设计稿 → 1rem = 100px */
+}
+
+/* 大屏上限限制 */
+@media screen and (width >= 750px) {
+  html {
+    font-size: 100px;
+  }
+}
+
+// 2. 字体与文本（大厂标准）
 body {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif; // 系统无衬线字体（适配移动端）
-
-  font-size: 3.2vw; // 基础字体大小（750设计稿对应 24px）
-  line-height: 1.5; // 基础行高
-  // color: $text-color; // 全局文本颜色（变量定义在 variables.scss）
-  // background-color: $bg-color; // 全局背景色
-  -webkit-font-smoothing: antialiased; // 字体抗锯齿（iOS）
-  -moz-osx-font-smoothing: grayscale; // 字体抗锯齿（Android）
+    Arial, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation; /* 禁止双击缩放 ✅ 正确位置 */
 }
 
-// 3. 清除列表默认样式
+// 3. 列表样式
 ul,
 ol,
 li {
   list-style: none;
 }
 
-// 4. 文本装饰统一
+// 4. 链接样式
 a {
   text-decoration: none;
-  color: inherit; // 继承父级颜色（避免默认蓝色）
+  color: inherit;
 }
 
-// 5. 表单样式统一（修复 Normalize 未覆盖的移动端问题）
+// 5. 表单重置
 input,
 textarea,
 select,
 button {
-  // 清除原生外观（如 iOS 输入框圆角）
   appearance: none;
-  background: transparent; // 透明背景（方便自定义样式）
-  border: none; // 清除默认边框
-  outline: none; // 清除聚焦轮廓（自定义聚焦样式）
-  font-family: inherit; // 继承字体（避免表单字体不一致）
-  font-size: inherit; // 继承字体大小
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: inherit;
 }
 
-// 6. 禁止文本选中（非必要场景）
+// 6. 禁止选中
 .no-select {
   user-select: none;
 }
 
-// 7. 图片自适应
+// 7. 图片自适应（大厂标准）
 img {
-  display: block; // 消除 inline 默认空隙
+  display: block;
   max-width: 100%;
   height: auto;
 }
 
-// 8. 清除浮动（兼容老 WebView）
+// 8. 清除浮动
 .clearfix::after {
   content: '';
   display: table;
   clear: both;
 }
 
-// 9. 禁用缩放（避免用户缩放页面导致布局错乱）
-html {
-  // 禁止双击缩放
-  touch-action: manipulation;
+// 特殊场景：需要双击的元素，单独覆盖
+.double-tap-element {
+  touch-action: auto;
+}
+
+// 特殊场景：横向滚动容器
+.h-scroll-container {
+  touch-action: pan-y pinch-zoom;
 }
